@@ -50,3 +50,5 @@ export async function get_dag_runs(dag_id) { return await fetcher(`/dags/${dag_i
 export async function post_dag_run(dag_id) { return await fetcher(`/dags/${dag_id}/dagRuns`, 'POST'); }
 export async function get_dag_run(dag_id, dag_run_id) { return await fetcher(`/dags/${dag_id}/dagRuns/${dag_run_id}`, 'GET'); }
 export async function delete_dag_run(dag_id, dag_run_id) { return await fetcher(`/dags/${dag_id}/dagRuns/${dag_run_id}`, 'DELETE'); }
+export async function get_task_instances(dag_id, dag_run_id) { return await fetcher(`/dags/${dag_id}/dagRuns/${dag_run_id}/taskInstances`, 'GET'); }
+export async function get_task_instance(dag_id, dag_run_id, task_id) { return await fetcher(`/dags/${dag_id}/dagRuns/${dag_run_id}/taskInstances/${task_id}`, 'GET'); }
