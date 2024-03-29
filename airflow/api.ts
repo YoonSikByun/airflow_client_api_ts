@@ -42,6 +42,20 @@ export function fetcher(sub_path: string, method : string, data? : Object) {
         });
 }
 
+const fs = require('fs');
+
+export function delete_file(path, filename) {
+    try {
+        fs.unlinkSync(`${path}/${filename}`);
+    } catch (err) {
+        return {status: false, reason: err.message};
+    }
+
+    return {status: true, reason: 'success'};
+}
+
+export async function get_import_errors() { return await fetcher('/importErrors', 'GET'); }
+
 export async function get_dags() { return await fetcher('/dags', 'GET'); }
 export async function get_dag(dag_id) { return await fetcher(`/dags/${dag_id}`, 'GET'); }
 export async function delete_dag(dag_id) { return await fetcher(`/dags/${dag_id}`, 'DELETE'); }
