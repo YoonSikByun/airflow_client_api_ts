@@ -1,17 +1,14 @@
-import exp = require("constants");
-
-const api_base_uri : string = 'http://localhost:5000/api/v1';
-const username : string = 'admin';
-const password : string = 'admin';
+// const api_base_uri : string = 'http://localhost:5000/api/v1';
 const prettyjson = require('prettyjson');
 
-export function fetcher(sub_path: string, method : string, data? : Object) {
-    const call_api_url = api_base_uri + sub_path;
+function fetcher(base_url : string, sub_path: string, method : string, auth? : string, data? : Object) {
+    const call_api_url = base_url + sub_path;
     console.log(`- call_api_url : [${method}] ${call_api_url}`);
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('Accept', 'application/json');
-    headers.append('Authorization', 'Basic ' + btoa('admin:admin'));
+    if(auth)
+        headers.append('Authorization', 'Basic ' + btoa(auth));
 
     const init = {method: method, headers: headers,  body: JSON.stringify(data)};
     const response : Object = { status: true, reason : 'success', data : null };
@@ -54,17 +51,29 @@ export function delete_file(path, filename) {
     return {status: true, reason: 'success'};
 }
 
-export async function get_import_errors() { return await fetcher('/importErrors', 'GET'); }
+export class Api {
+    private auth : string = '';
+    private base_url : string = '';
 
-export async function get_dags() { return await fetcher('/dags', 'GET'); }
-export async function get_dag(dag_id) { return await fetcher(`/dags/${dag_id}`, 'GET'); }
-export async function delete_dag(dag_id) { return await fetcher(`/dags/${dag_id}`, 'DELETE'); }
-export async function get_dag_details(dag_id) { return await fetcher(`/dags/${dag_id}/details`, 'GET'); }
-export async function get_tasks(dag_id) { return await fetcher(`/dags/${dag_id}/tasks`, 'GET'); }
-export async function get_task(dag_id, task_id) { return await fetcher(`/dags/${dag_id}/tasks/${task_id}`, 'GET'); }
-export async function get_dag_runs(dag_id) { return await fetcher(`/dags/${dag_id}/dagRuns`, 'GET'); }
-export async function post_dag_run(dag_id) { return await fetcher(`/dags/${dag_id}/dagRuns`, 'POST', {}); } //Trigger a new DAG run.
-export async function get_dag_run(dag_id, dag_run_id) { return await fetcher(`/dags/${dag_id}/dagRuns/${dag_run_id}`, 'GET'); }
-export async function delete_dag_run(dag_id, dag_run_id) { return await fetcher(`/dags/${dag_id}/dagRuns/${dag_run_id}`, 'DELETE'); }
-export async function get_task_instances(dag_id, dag_run_id) { return await fetcher(`/dags/${dag_id}/dagRuns/${dag_run_id}/taskInstances`, 'GET'); }
-export async function get_task_instance(dag_id, dag_run_id, task_id) { return await fetcher(`/dags/${dag_id}/dagRuns/${dag_run_id}/taskInstances/${task_id}`, 'GET'); }
+    constructor(base_url, username : string, password : string) {
+        this.set_base_url(base_url);
+        this.set_auth(username, password);
+    }
+
+    set_base_url(base_url) { this.base_url = base_url; }
+    set_auth(username, password) {this.auth = username + ':' + password; }
+    async get_import_errors() { return await fetcher(this.base_url, '/importErrors', 'GET', this.auth); }
+    async get_dags() { return await fetcher(this.base_url, '/dags', 'GET', this.auth); }
+    async get_dag(dag_id) { return await fetcher(this.base_url, `/dags/${dag_id}`, 'GET', this.auth); }
+    async delete_dag(dag_id) { return await fetcher(this.base_url, `/dags/${dag_id}`, 'DELETE', this.auth); }
+    async get_dag_details(dag_id) { return await fetcher(this.base_url, `/dags/${dag_id}/details`, 'GET', this.auth); }
+    async get_tasks(dag_id) { return await fetcher(this.base_url, `/dags/${dag_id}/tasks`, 'GET', this.auth); }
+    async get_task(dag_id, task_id) { return await fetcher(this.base_url, `/dags/${dag_id}/tasks/${task_id}`, 'GET', this.auth); }
+    async get_dag_runs(dag_id) { return await fetcher(this.base_url, `/dags/${dag_id}/dagRuns`, 'GET', this.auth); }
+    async clear_dag_run(dag_id, dag_run_id) { return await fetcher(this.base_url, `/dags/${dag_id}/dagRuns/${dag_run_id}/clear`, 'POST', this.auth, {dry_run: true}); }
+    async post_dag_run(dag_id, data?) { if(!data) data = {}; return await fetcher(this.base_url, `/dags/${dag_id}/dagRuns`, 'POST', this.auth, data); } //Trigger a new DAG run.
+    async get_dag_run(dag_id, dag_run_id) { return await fetcher(this.base_url, `/dags/${dag_id}/dagRuns/${dag_run_id}`, 'GET', this.auth); }
+    async delete_dag_run(dag_id, dag_run_id) { return await fetcher(this.base_url, `/dags/${dag_id}/dagRuns/${dag_run_id}`, 'DELETE', this.auth); }
+    async get_task_instances(dag_id, dag_run_id) { return await fetcher(this.base_url, `/dags/${dag_id}/dagRuns/${dag_run_id}/taskInstances`, 'GET', this.auth); }
+    async get_task_instance(dag_id, dag_run_id, task_id) { return await fetcher(this.base_url, `/dags/${dag_id}/dagRuns/${dag_run_id}/taskInstances/${task_id}`, 'GET', this.auth); }
+}
