@@ -1,17 +1,61 @@
 
 import { Api, delete_file } from "./airflow/api";
-import { DagDefaultArgs, dagDefaultArgs, DagInfo, defaultDagInfo, makeDagPythonfile } from "./airflow/reactflow_to_airflow_dag";
+// import { DagDefaultArgs, dagDefaultArgs, DagInfo, defaultDagInfo, makeDagPythonfile } from "./airflow/reactflow_to_airflow_dag";
 const prettyjson = require('prettyjson');
-const dag_folder = '/Users/yoonsikbyun/Documents/minikube_mnt';
+// const dag_folder = '/Users/yoonsikbyun/Documents/minikube_mnt';
 
-const api : Api = new Api('http://localhost:5000/api/v1', 'admin', 'admin');
+const api : Api = new Api();
 
 // api.get_dags().then(data => console.log(prettyjson.render(data)));
-// api.get_import_errors().then(data => console.log(prettyjson.render(data)));
-// api.delete_dag('4c7af82c-c123-4efb-8568-cbd498ec7444').then(data => console.log(prettyjson.render(data)));
+// api.delete_dag('tutorial').then(data => console.log(prettyjson.render(data)));
+// api.post_dag_run('tutorial').then(data => console.log(prettyjson.render(data)));
+// api.get_dag_details('tutorial').then(data => console.log(prettyjson.render(data)));
+// api.get_tasks('tutorial').then(data => console.log(prettyjson.render(data)));
 
-let date = new Date();
+// api.is_dag_stop('tutorial').then(data => console.log(prettyjson.render(data)));
+// api.delete_dag_run('tutorial', 'manual__2024-04-07T10:33:10.950749+00:00').then(data => console.log(prettyjson.render(data)));
 
-console.log(date.getFullYear());
-console.log(date.getMonth());
-console.log(date.getDay());
+
+// import { psqlQuery } from "./libs/pg";
+
+// const query = `
+// SELECT
+// 	config AS congifuration
+// FROM
+// 	USER_CONFIGURATIONS
+// 	CROSS JOIN jsonb_array_elements(DATA -> 'configurations') config
+// WHERE (DATA ->> 'userid') = 'ihor@gmail.com'
+// 	AND (config ->> 'name') = 'myconf';
+// `;
+
+// console.log('--------- start --------');
+// psqlQuery(query);
+
+import { test_psql } from "./libs/pg";
+
+const query = `
+SELECT dag_id, task_id, state, duration, try_number, hostname FROM task_instance WHERE dag_id like 'tutorial%'
+`;
+
+test_psql(query).then(data => {
+    console.log('-------11111');
+    console.log(prettyjson.render(data.rows))
+    console.log('-------222222');
+});
+
+// const fs = require('node:fs');
+
+// const file_path = '';
+
+// if (fs.existsSync(file_path)) {
+//     fs.unlinkSync(file_path);
+// }
+
+// const glob = require("glob").sync;
+// const path = require("path");
+// const files = glob("/Users/yoonsikbyun/Documents/minikube_mnt/tutorial*.py");
+
+// for (const index in files) {
+//     const fp = files[index].toLowerCase();
+//     console.log(path.basename(fp).split('.').slice(0, -1).join('.'));
+// }

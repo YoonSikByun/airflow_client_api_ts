@@ -2,8 +2,8 @@
 const prettyjson = require('prettyjson');
 
 function fetcher(base_url : string, sub_path: string, method : string, auth? : string, data? : Object) {
-    const call_api_url = base_url + sub_path;
-    console.log(`- call_api_url : [${method}] ${call_api_url}`);
+    const call_url = base_url + sub_path;
+    console.log(`- call_url : [${method}] ${call_url}`);
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('Accept', 'application/json');
@@ -11,10 +11,10 @@ function fetcher(base_url : string, sub_path: string, method : string, auth? : s
         headers.append('Authorization', 'Basic ' + btoa(auth));
 
     const init = {method: method, headers: headers,  body: JSON.stringify(data)};
-    const response : Object = { status: true, reason : 'success', data : null };
+    const response : any = { status: true, reason : 'success', data : null };
     let response_code : number = 200;
 
-    return fetch(call_api_url, init)
+    return fetch(call_url, init)
         .then(data => {
             if('status' in data) response_code = data['status'];
             if(response_code == 204)
@@ -41,23 +41,24 @@ function fetcher(base_url : string, sub_path: string, method : string, auth? : s
 
 const fs = require('fs');
 
-export function delete_file(path, filename) {
+export function delete_file(path : string, filename : string) {
     try {
         fs.unlinkSync(`${path}/${filename}`);
-    } catch (err) {
+    } catch (err : any) {
         return {status: false, reason: err.message};
     }
 
     return {status: true, reason: 'success'};
 }
 
+//Airflow WebServer API
 export class Api {
     private auth : string = '';
     private base_url : string = '';
 
-    constructor(base_url, username : string, password : string) {
-        this.set_base_url(base_url);
-        this.set_auth(username, password);
+    constructor() {
+        this.set_base_url('http://localhost:30100/api/v1');
+        this.set_auth('admin', 'admin');
     }
 
     set_base_url(base_url : string) {
@@ -179,5 +180,33 @@ export class Api {
             `/dags/${dag_id}/dagRuns/${dag_run_id}/taskInstances/${task_id}/logs/${task_try_number}`,
             'GET',
             this.auth);
+    }
+
+    /*************************************
+      Customize
+    **************************************/
+    async is_dag_stop(dag_id : string) {
+        //QUEUED = "queued"
+        //RUNNING = "running"
+        //SUCCESS = "success"
+        //FAILED = "failed"
+        const response = await this.get_dag_runs(dag_id);
+        if(!response['reason']) return response;
+
+            
+        // There are two possible terminal states for the DAG Run:
+        //     - success if all of the leaf nodes states are either success or skipped,
+        //     - failed if any of the leaf nodes state is either failed or upstream_failed.
+        // 'success', 'failed'가 아니면 아직 실행중인 dag다.
+
+        const dag_runs = response['data']['dag_runs'];
+        for(const index in dag_runs) {
+            
+            const state = dag_runs[index]['state'];
+            if(state != 'success' && state != 'failed')
+                return false;
+        }
+
+        return true;
     }
 }

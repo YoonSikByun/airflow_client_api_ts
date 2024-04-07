@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "ts-node -r tsconfig-paths/register --transpile-only index.ts"
   },
   "author": "",
   "license": "ISC",
@@ -12,6 +13,15 @@
     "@types/node": "^20.11.30"
   },
   "dependencies": {
-    "prettyjson": "^1.2.5"
+    "@types/dotenv": "^8.2.0",
+    "@types/glob": "^8.1.0",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
+    "glob": "^10.3.12",
+    "nodemon": "^3.1.0",
+    "path": "^0.12.7",
+    "pg": "^8.11.5",
+    "prettyjson": "^1.2.5",
+    "tsconfig-paths": "^4.2.0"
   }
 }
