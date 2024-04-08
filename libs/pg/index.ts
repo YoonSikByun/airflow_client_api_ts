@@ -35,26 +35,21 @@ const spql_conf = {
 
 const pool = new Pool(spql_conf);
 
-
 export class PsqlAgent {
     private client : any = null;
     async begin() {
         this.client = await pool.connect();
-        this.client.query('BEGIN')
+        this.client.query('BEGIN');
     }
-
     async query(query : string) {
         return await this.client.query(query);
     }
-
     async commit() {
         this.client.query('COMMIT');
     }
-
     async rollback() {
         await this.client.query('ROLLBACK');
     }
-
     async release() {
         this.client.release();
     }
