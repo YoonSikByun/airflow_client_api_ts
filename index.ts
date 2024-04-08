@@ -64,7 +64,8 @@ import { ExampleClass } from "./libs/deco";
 const t = new ExampleClass();
 
 // t.method();
-t.testf();
+const rtn = ExampleClass.testf(100, 200);
+console.log(`rtn : ${rtn} -------------`);
 
 
 // // Decorator function 
