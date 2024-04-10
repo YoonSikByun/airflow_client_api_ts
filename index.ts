@@ -13,4 +13,5 @@ const api : Api = new Api();
 
 // api.is_dag_stop('tutorial').then(data => console.log(prettyjson.render(data)));
 // api.delete_dag_run('tutorial', 'manual__2024-04-07T10:33:10.950749+00:00').then(data => console.log(prettyjson.render(data)));
-api.get_import_errors().then(data => console.log(prettyjson.render(data)));
+// api.get_import_errors().then(data => console.log(prettyjson.render(data)));
+api.get_dag_runs('ewuRKTHZfFWq5qa1CWVYI').then(data => console.log(prettyjson.render(data)));
