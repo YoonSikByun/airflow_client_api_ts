@@ -5,29 +5,27 @@
 
 // const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
-const service = {
-    "metadata": {
-        "labels": {
-            "app": "jupyter-lab",
+function create_jupyerlab_service(name : string, namespace : string = 'default') {
+    const service = {
+        "metadata": {
+            "name": `${name}-svc`,
+            "namespace": namespace,
         },
-        "name": "jupyter-lab-nodeport",
-        "namespace": "default",
-    },
-    "spec": {
-        "ports": [
-            {
-                "name": "airflow-ui",
-                "nodePort": 30110,
-                "port": 8888,
-                "protocol": "TCP",
-                "targetPort": 8888
-            }
-        ],
-        "selector": {
-            "app": "jupyter-lab",
-        },
-        "type": "NodePort"
+        "spec": {
+            "ports": [
+                {
+                    "name": "port8888",
+                    "port": 8888,
+                    "protocol": "TCP",
+                    "targetPort": 8888
+                }
+            ],
+            "selector": {
+                "app": name
+            },
+            "type": "ClusterIP"
+        }
     }
-}
 
-k8sApi.createNamespacedService('default', service);
+    k8sApi.createNamespacedService(namespace, service);
+}
