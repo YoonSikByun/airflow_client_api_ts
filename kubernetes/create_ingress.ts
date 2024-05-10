@@ -8,13 +8,16 @@ kc.loadFromDefault();
 const k8sApi = kc.makeApiClient(k8s.NetworkingV1Api); // before 1.14 use extensions/v1beta1
 const clientIdentifier = 'my-subdomain';
 
-const main = async () => {
+function create_jupterlab_ingress(name : string, namespace : string = 'default') {
     const ingress = {
         "apiVersion": "networking.k8s.io/v1",
         "kind": "Ingress",
         "metadata": {
-            "name": "jupyter-lab-ingress",
-            "namespace": "default",
+            "annotations": {
+                "nginx.ingress.kubernetes.io/proxy-body-size": "1000m"
+            },
+            "name": `${name}-ingress`,
+            "namespace": namespace,
         },
         "spec": {
             "ingressClassName": "nginx",
@@ -25,13 +28,13 @@ const main = async () => {
                             {
                                 "backend": {
                                     "service": {
-                                        "name": "jupyter-lab-svc",
+                                        "name": `${name}-svc`,
                                         "port": {
                                             "number": 8888
                                         }
                                     }
                                 },
-                                "path": "/jupyter-lab",
+                                "path": `/${name}`,
                                 "pathType": "ImplementationSpecific"
                             }
                         ]
@@ -47,6 +50,4 @@ const main = async () => {
     } catch (err) {
         console.error(err);
     }
-};
-
-main();
+}
